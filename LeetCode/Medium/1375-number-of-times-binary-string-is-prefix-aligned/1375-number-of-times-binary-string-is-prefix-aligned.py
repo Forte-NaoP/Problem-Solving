@@ -1,12 +1,10 @@
 class Solution:
     def numTimesAllBlue(self, flips: List[int]) -> int:
-        number = 1 << (len(flips)+1)
-        refer = number
+        M = 0
         answer = 0
-        for step, flip in enumerate(flips):
-            refer |= (1 << step)
-            number |= (1 << (flip-1))
-            if refer == number:
+        for step, flip in enumerate(flips, start=1):
+            M = max(M, flip)
+            if M == step:
                 answer += 1
         return answer
             
