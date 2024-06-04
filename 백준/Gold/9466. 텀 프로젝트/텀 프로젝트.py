@@ -4,7 +4,7 @@ for _ in range(t):
     want = [0] + list(map(int, input().split()))
     st = []
     visit = [False for _ in range(n + 1)]
-    cycle = [0 for _ in range(n + 1)]
+    cycle = 0
 
     for i in range(1, n + 1):
         if visit[i]:
@@ -18,15 +18,9 @@ for _ in range(t):
                 st.append(want[now])
                 visit[want[now]] = True
             else:
-                if cycle[want[now]] != 0:
-                    while st:
-                        cycle[st.pop()] = -1
-                else:
-                    while st and st[-1] != want[now]:
-                        cycle[st.pop()] = 1
-                    if st:
-                        cycle[st.pop()] = 1
-                    while st:
-                        cycle[st.pop()] = -1
-                        
-    print(cycle.count(-1))
+                cut = -1
+                if want[now] in st:
+                    cut = st.index(want[now])
+                    cycle += len(st) - cut
+                st = []
+    print(n - cycle)
