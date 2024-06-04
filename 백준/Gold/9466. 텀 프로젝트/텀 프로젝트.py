@@ -3,28 +3,30 @@ for _ in range(t):
     n = int(input())
     want = [0] + list(map(int, input().split()))
     st = []
-    not_visit = set([i for i in range(1, n + 1)])
-    not_cycle = set()
-    cycle = set()
+    visit = [False for _ in range(n + 1)]
+    cycle = [0 for _ in range(n + 1)]
 
-    while not_visit:
-        cur = not_visit.pop()
-        st.append(cur)
+    for i in range(1, n + 1):
+        if visit[i]:
+            continue
+        st.append(i)
+        visit[i] = True
 
         while st:
             now = st[-1]
-            if want[now] in not_visit:
+            if not visit[want[now]]:
                 st.append(want[now])
-                not_visit.remove(want[now])
+                visit[want[now]] = True
             else:
-                if want[now] in cycle or want[now] in not_cycle:
-                    not_cycle.update(st)
-                    st.clear()
+                if cycle[want[now]] != 0:
+                    while st:
+                        cycle[st.pop()] = -1
                 else:
                     while st and st[-1] != want[now]:
-                        cycle.add(st.pop())
+                        cycle[st.pop()] = 1
                     if st:
-                        cycle.add(st.pop())
-                    not_cycle.update(st)
-                    st.clear()
-    print(len(not_cycle))
+                        cycle[st.pop()] = 1
+                    while st:
+                        cycle[st.pop()] = -1
+                        
+    print(cycle.count(-1))
