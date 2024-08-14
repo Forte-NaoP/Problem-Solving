@@ -10,12 +10,15 @@ for _ in range(n - 1):
     tree[a].append((b, c))
     tree[b].append((a, c))
 
-def dfs(start):
+v1 = [False] * (n + 1)
+v2 = [False] * (n + 1)
+d1 = [0] * (n + 1)
+d2 = [0] * (n + 1)
+
+def dfs(start, visit, dist):
     q = deque()
     q.append(start)
-    visit = [False] * (n + 1)
     visit[start] = True
-    dist = [0] * (n + 1)
     while q:
         cur = q.popleft()
         for nxt, cost in tree[cur]:
@@ -25,7 +28,7 @@ def dfs(start):
                 q.append(nxt)
     return max(dist), dist.index(max(dist))
 
-l1, e1 = dfs(1)
-l2, e2 = dfs(e1)
+l1, e1 = dfs(1, v1, d1)
+l2, e2 = dfs(e1, v2, d2)
 
 print(l2)
