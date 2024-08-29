@@ -5,10 +5,9 @@ input = sys.stdin.readline
 
 n = int(input())
 tree = [[] for _ in range(n + 1)]
-visit = [False for _ in range(n + 1)]
 parent = [-1 for _ in range(n + 1)]
 dp = [[0, 0] for _ in range(n + 1)]
-dq = [[] for _ in range(n + 1)]
+dq = [[]]
 max_depth = 0
 
 for _ in range(n - 1):
@@ -16,19 +15,20 @@ for _ in range(n - 1):
     tree[a].append(b)
     tree[b].append(a)
 
-q = deque([(1, 0)])
-visit[1] = True
+q = deque([(1, 0, -1)])
 
 while q:
-    cur, depth = q.popleft()
+    cur, depth, p = q.popleft()
+    if len(dq) <= depth:
+        dq.append([])
     dq[depth].append(cur)
     max_depth = max(max_depth, depth)
 
     for nxt in tree[cur]:
-        if not visit[nxt]:
-            q.append((nxt, depth + 1))
-            parent[nxt] = cur
-            visit[nxt] = True
+        if nxt == p:
+            continue
+        q.append((nxt, depth + 1, cur))
+        parent[nxt] = cur
 
 
 while max_depth >= 0 and dq[max_depth]:
