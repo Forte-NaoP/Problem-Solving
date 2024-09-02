@@ -1,5 +1,4 @@
 import sys
-from collections import defaultdict
 import heapq
 
 hpush = heapq.heappush
@@ -7,33 +6,32 @@ hpop = heapq.heappop
 heapify = heapq.heapify
 
 input = sys.stdin.readline
+sys.setrecursionlimit(10**6)
 
 v, e = map(int, input().split())
-graph = defaultdict(lambda : defaultdict(lambda : 1e9))
+edge = []
 for _ in range(e):
     a, b, c = map(int, input().split())
-    graph[a][b] = graph[b][a] = min(graph[a][b], c)
+    hpush(edge, (c, a, b))
 
-node_cnt = 0
-nodes = [False for _ in range(v + 1)]
-mst_weight = 0
+parent = [i for i in range(v + 1)]
+def find(x):
+    if parent[x] == x:
+        return x
+    parent[x] = find(parent[x])
+    return parent[x]
 
-pq = []
-for nxt, weight in graph[1].items():
-    hpush(pq, (weight, nxt))
-nodes[1] = True
+def union(x, y):
+    x = find(x)
+    y = find(y)
+    if x == y:
+        return False
+    parent[x] = y
+    return True
 
-while node_cnt < v and pq:
-    weight, cur = hpop(pq)
-    if nodes[cur]:
-        continue
-
-    mst_weight += weight
-    nodes[cur] = True
-    node_cnt += 1
-
-    for nxt, weight in graph[cur].items():
-        if not nodes[nxt]:
-            hpush(pq, (weight, nxt))
-
-print(mst_weight)
+ans = 0
+while edge:
+    c, a, b = hpop(edge)
+    if union(a, b):
+        ans += c
+print(ans)
