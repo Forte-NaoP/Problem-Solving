@@ -1,4 +1,5 @@
 import sys
+from itertools import islice
 
 input = sys.stdin.readline
 
@@ -12,21 +13,11 @@ for _ in range(m):
 info.sort(key=lambda x: (x[1], x[0]))
 
 ans = 0
-truck = [0 for _ in range(n + 1)]
-cap = 0
-last = 0
+truck = [max_cap for _ in range(n + 1)]
 
 for a, b, c in info:
-    for i in range(last, a + 1):
-        ans += truck[i]
-        cap -= truck[i]
-        truck[i] = 0
-    last = a
-    if cap == max_cap:
-        continue
-    truck[b] += min(max_cap - cap, c)
-    cap += min(max_cap - cap, c)
-
-ans += sum(truck)
+    box = min(min(islice(truck, a, b)), c)
+    truck[a:b] = map(lambda x: x - box, islice(truck, a, b))
+    ans += box
 
 print(ans)
