@@ -21,7 +21,7 @@ d = lambda x, y: (10 ** (y + 1) + x * 10 + 2, y + 2)
 e = lambda x, y: (3 * 10 ** (y + 1) + x * 10 + 4, y + 2)
 f = lambda x, y: (5 * 10 ** (y + 1) + x * 10 + 6, y + 2)
 
-for i in range(1, 35):
+for i in range(1, 1001):
     if i >= 1:
         dmap = a(*dp[i - 1])
         if dmap[0] < dp[i][0]:
