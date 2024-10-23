@@ -1,0 +1,23 @@
+-- 코드를 입력하세요
+SELECT
+    b.CATEGORY,
+    SUM(s.SALES) AS TOTAL_SALES
+FROM
+    BOOK b
+INNER JOIN (
+    SELECT 
+        SUM(SALES) AS SALES, 
+        BOOK_ID
+    FROM 
+        BOOK_SALES 
+    WHERE
+        EXTRACT(YEAR_MONTH FROM SALES_DATE) = "202201"
+    GROUP BY 
+        BOOK_ID
+) AS s
+ON
+    s.BOOK_ID = b.BOOK_ID
+GROUP BY 
+    b.CATEGORY
+ORDER BY
+    b.CATEGORY ASC;
