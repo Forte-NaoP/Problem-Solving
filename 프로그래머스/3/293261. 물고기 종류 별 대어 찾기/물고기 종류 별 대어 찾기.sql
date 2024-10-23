@@ -1,0 +1,17 @@
+SELECT 
+    i.ID, 
+    ni.FISH_NAME, 
+    i.LENGTH
+FROM 
+    FISH_INFO i
+INNER JOIN 
+    FISH_NAME_INFO ni
+ON 
+    i.FISH_TYPE = ni.FISH_TYPE
+WHERE 
+    (i.LENGTH, i.FISH_TYPE) in (
+        SELECT MAX(LENGTH), FISH_TYPE
+        FROM FISH_INFO 
+        GROUP BY FISH_TYPE
+    )
+ORDER BY 1 ASC
