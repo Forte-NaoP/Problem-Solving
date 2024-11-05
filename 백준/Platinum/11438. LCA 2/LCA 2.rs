@@ -13,7 +13,7 @@ struct LCA {
 impl LCA {
     fn new(n: usize) -> Self {
         let max_depth = (n as f64).log2() as usize + 1;
-        let parent = vec![vec![0; max_depth]; n + 1];
+        let parent = vec![vec![0; n + 1]; max_depth];
         let depth = vec![0; n + 1];
         LCA{
             parent,
@@ -24,10 +24,10 @@ impl LCA {
 
     fn init(&mut self, tree: &Vec<Vec<usize>>, cur: usize, p: usize) {
         self.depth[cur] = self.depth[p] + 1;
-        self.parent[cur][0] = p;
+        self.parent[0][cur] = p;
 
         for i in 1..self.max_depth {
-            self.parent[cur][i] = self.parent[self.parent[cur][i - 1]][i - 1]
+            self.parent[i][cur] = self.parent[i - 1][self.parent[i - 1][cur]];
         }
 
         for &nxt in tree[cur].iter() {
@@ -45,7 +45,7 @@ impl LCA {
         let diff = self.depth[b] - self.depth[a];
         for i in 0..self.max_depth {
             if (diff >> i) & 1 == 1 {
-                b = self.parent[b][i];
+                b = self.parent[i][b];
             }
         }
         
@@ -54,12 +54,12 @@ impl LCA {
         }
 
         for i in (0..self.max_depth).rev() {
-            if self.parent[a][i] != self.parent[b][i] {
-                a = self.parent[a][i];
-                b = self.parent[b][i];
+            if self.parent[i][a] != self.parent[i][b] {
+                a = self.parent[i][a];
+                b = self.parent[i][b];
             }
         } 
-        return self.parent[a][0];
+        return self.parent[0][a];
     }
 }
 
