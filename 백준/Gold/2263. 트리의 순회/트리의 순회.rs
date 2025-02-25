@@ -1,5 +1,6 @@
 use std::mem::swap;
 use std::cmp::{Ordering, max};
+use std::collections::HashMap;
 use std::pin::Pin;
 use std::{default, i32, usize, vec};
 use std::{
@@ -26,27 +27,31 @@ fn solve(stdin: &str) {
         };
     }
     
-    fn preorder(inorder: &[usize], postorder: &[usize]) {
-        if postorder.is_empty() {
+    fn preorder(in_pos: &HashMap<usize, usize>, 
+        inorder: &[usize], 
+        postorder: &[usize], 
+        in_l: usize, 
+        in_r: usize, 
+        post_l: usize, 
+        post_r: usize
+    ) {
+        if post_l > post_r {
             return;
         }
-        let &sub_root = postorder.last().unwrap();
+    
+        let sub_root = postorder[post_r];
         print!("{} ", sub_root);
-        if postorder.len() == 1 {
-            return;
-        }
-        let sub_root_idx = inorder
-            .iter()
-            .position(|&x| x == sub_root)
-            .unwrap();
-
-        let left_size = sub_root_idx;
-        let right_size = inorder.len() - sub_root_idx - 1;
+    
+        let sub_root_idx = in_pos[&sub_root];
+        let left_size = sub_root_idx - in_l;
+        let right_size = in_r - sub_root_idx;
+    
         if left_size > 0 {
-            preorder(&inorder[..sub_root_idx], &postorder[..left_size]);
+            preorder(in_pos, inorder, postorder, in_l, sub_root_idx - 1, post_l, post_l + left_size - 1);
         }
+    
         if right_size > 0 {
-            preorder(&inorder[sub_root_idx + 1..], &postorder[left_size..left_size + right_size]);
+            preorder(in_pos, inorder, postorder, sub_root_idx + 1, in_r, post_l + left_size, post_r - 1);
         }
     }
 
@@ -60,7 +65,13 @@ fn solve(stdin: &str) {
         postorder.push(next!(usize));
     }
 
-    preorder(&inorder[..], &postorder[..]);
+    let in_pos: HashMap<usize, usize> = inorder
+        .iter()
+        .enumerate()
+        .map(|(idx, &val)| (val, idx))
+        .collect();
+
+    preorder(&in_pos, &inorder, &postorder, 0, n - 1, 0, n - 1);
 }
 
 fn main() {
