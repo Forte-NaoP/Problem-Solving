@@ -36,17 +36,40 @@ fn solve(stdin: &str) {
         tree[v].push(u);
     }
 
-    fn dfs(cur: usize, p: usize, tree: &Vec<Vec<usize>>, sub_size: &mut Vec<i32>) {
-        sub_size[cur] = 1;
+    let mut stack = vec![r];
+    let mut order = vec![];
+    let mut parent = vec![0; n + 1];
+
+    while let Some(cur) = stack.pop() {
+        order.push(cur);
         for &nxt in tree[cur].iter() {
-            if nxt != p {
-                dfs(nxt, cur, tree, sub_size);
+            if nxt != parent[cur] {
+                parent[nxt] = cur;
+                stack.push(nxt);
+            }
+        }
+    }
+
+    while let Some(cur) = order.pop() {
+        sub_size[cur] = 1;
+        for &nxt in &tree[cur] {
+            if nxt != parent[cur] {
                 sub_size[cur] += sub_size[nxt];
             }
         }
     }
 
-    dfs(r, 0, &tree, &mut sub_size);
+    // fn dfs(cur: usize, p: usize, tree: &Vec<Vec<usize>>, sub_size: &mut Vec<i32>) {
+    //     sub_size[cur] = 1;
+    //     for &nxt in tree[cur].iter() {
+    //         if nxt != p {
+    //             dfs(nxt, cur, tree, sub_size);
+    //             sub_size[cur] += sub_size[nxt];
+    //         }
+    //     }
+    // }
+
+    // dfs(r, 0, &tree, &mut sub_size);
 
     for _ in 0..q {
         let u = next!(usize);
