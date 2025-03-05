@@ -14,69 +14,74 @@
 using namespace std;
 
 struct Edge {
-    int from, to, dist;
+    int to;
+    int64_t dist;
 };
 
-int cityCharge[2500];
-vector<Edge> graph[2500];
-int n, m;
-
-struct Node {
-    int charge, now, cost;
+struct Node{
+    int city;
+    int minCharge;
+    int64_t cost;
 };
-
-struct NodeCmp {
-    bool operator()(const Node& a, const Node& b) {
+ 
+struct NodeCmp{
+    bool operator()(Node &a, Node &b){
         return a.cost > b.cost;
     }
 };
+ 
+int N, M;
+int charge[2501];
+int64_t cost[2501][2501];
+vector<Edge> graph[2501];
+ 
+void dijkstra(){
+    priority_queue<Node, vector<Node>, NodeCmp> pq;
+    pq.push({1, charge[1], 0});
+    
+    while(!pq.empty()){
+        int cur = pq.top().city;
+        int curCharge = pq.top().minCharge;
+        int64_t curCost = pq.top().cost;
 
-int minCharge[2500];
-int minCost[2500];
-priority_queue<Node, vector<Node>, NodeCmp> pq;
+        pq.pop();
+
+        if (cost[cur][curCharge] < curCost) continue;
+        cost[cur][curCharge] = curCost;
+        
+        if(cur == N){
+            cout << curCost << "\n";
+            return;
+        }
+        
+        for (Edge& e: graph[cur]) {
+            int64_t nxtCost = curCost + e.dist * curCharge;
+            int nxtCharge = min(curCharge, charge[e.to]);
+
+            if (cost[e.to][nxtCharge] < nxtCost) continue;
+            pq.push({e.to, nxtCharge, nxtCost});
+        }
+    }
+}
+ 
 
 int main() {
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
     cout.tie(nullptr);
 
-    cin >> n >> m;
-    for (int i = 0; i < n; ++i) {
-        cin >> cityCharge[i];
+    cin >> N >> M;
+    for(int i = 1; i <= N; i++){
+        cin >> charge[i];
     }
 
-    for (int i = 0; i < m; ++i) {
-        int u, v, c;
+    int u, v, c;
+    for(int i = 0; i < M; i++){
         cin >> u >> v >> c;
-        u -= 1; v -= 1;
-        graph[u].push_back({u, v, c});
-        graph[v].push_back({v, u, c});
+        graph[u].push_back({v, c});
+        graph[v].push_back({u, c});
     }
 
-    fill(minCost, minCost + 2500, INT32_MAX);
-    memcpy(minCharge, cityCharge, sizeof(cityCharge));
-
-    minCost[0] = 0;
-    pq.push({minCharge[0], 0, 0});
-
-    while (!pq.empty()) {
-        Node cur = pq.top();
-        pq.pop();
-
-        if (cur.now == n - 1) {
-            pq = {};
-            cout << cur.cost;
-            break;
-        }
-
-        if (minCharge[cur.now] <= cur.charge && minCost[cur.now] < cur.cost) continue;
-        minCharge[cur.now] = min(minCharge[cur.now], cur.charge);
-
-        for (Edge& e: graph[cur.now]) {
-            int nxtCost = cur.cost + cur.charge * e.dist;
-            if (minCharge[e.to] <= cur.charge && minCost[e.to] < nxtCost) continue;
-            if (minCost[e.to] > nxtCost) minCost[e.to] = nxtCost;
-            pq.push({min(minCharge[e.to], cur.charge), e.to, nxtCost});
-        }
-    }
+    fill(cost[1], cost[N + 1], INT64_MAX);
+    dijkstra();
 }
