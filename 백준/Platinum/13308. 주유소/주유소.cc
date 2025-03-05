@@ -38,6 +38,7 @@ vector<Edge> graph[2501];
 void dijkstra(){
     priority_queue<Node, vector<Node>, NodeCmp> pq;
     pq.push({1, charge[1], 0});
+    cost[1][charge[1]] = 0;
     
     while(!pq.empty()){
         int cur = pq.top().city;
@@ -47,7 +48,6 @@ void dijkstra(){
         pq.pop();
 
         if (cost[cur][curCharge] < curCost) continue;
-        cost[cur][curCharge] = curCost;
         
         if(cur == N){
             cout << curCost << "\n";
@@ -58,8 +58,11 @@ void dijkstra(){
             int64_t nxtCost = curCost + e.dist * curCharge;
             int nxtCharge = min(curCharge, charge[e.to]);
 
-            if (cost[e.to][nxtCharge] < nxtCost) continue;
-            pq.push({e.to, nxtCharge, nxtCost});
+            if (cost[e.to][nxtCharge] > nxtCost) {
+                pq.push({e.to, nxtCharge, nxtCost});
+                cost[e.to][nxtCharge] = nxtCost;
+            }
+            
         }
     }
 }
