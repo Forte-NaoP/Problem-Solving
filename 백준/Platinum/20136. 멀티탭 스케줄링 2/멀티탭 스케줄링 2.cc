@@ -50,17 +50,19 @@ int32_t main() {
     int used = 0;
     for (int i = 0; i < k; ++i) {
         while (!pq.empty() && pq.top().appear != dq[pq.top().x].front()) pq.pop();
+        x = seq[i];
+        auto& curDeque = dq[x];
 
-        if (plugged[seq[i]]) {
-            dq[seq[i]].pop_front();
-            pq.push({dq[seq[i]].front(), seq[i]});
+        if (plugged[x]) {
+            curDeque.pop_front();
+            pq.push({curDeque.front(), x});
             continue;
         }
 
         if (used < n) {
-            dq[seq[i]].pop_front();
-            pq.push({dq[seq[i]].front(), seq[i]});
-            plugged[seq[i]] = true;
+            curDeque.pop_front();
+            pq.push({curDeque.front(), x});
+            plugged[x] = true;
             used += 1;
         } else {
             ans += 1;
@@ -68,9 +70,9 @@ int32_t main() {
             pq.pop();
             plugged[rm.x] = false;
 
-            dq[seq[i]].pop_front();
-            pq.push({dq[seq[i]].front(), seq[i]});
-            plugged[seq[i]] = true;
+            curDeque.pop_front();
+            pq.push({curDeque.front(), x});
+            plugged[x] = true;
         }
     }
 
