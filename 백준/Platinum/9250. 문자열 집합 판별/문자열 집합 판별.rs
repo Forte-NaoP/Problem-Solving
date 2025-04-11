@@ -41,11 +41,13 @@ impl Trie {
         let mut node = self.root.clone();
         for c in word.chars() {
             let idx = c as usize - 'a' as usize;
-            node = node.clone()
-                .borrow_mut()
-                .children[idx]
-                .get_or_insert(Rc::new(RefCell::new(TrieNode::new())))
-                .clone();
+            node = {
+                let mut node_mut = node.borrow_mut();
+                node_mut
+                    .children[idx]
+                    .get_or_insert_with(|| Rc::new(RefCell::new(TrieNode::new())))
+                    .clone()
+            };
         }
         node.borrow_mut().is_end = true;
     }
@@ -55,11 +57,26 @@ impl Trie {
         for c in word.chars() {
             let idx = c as usize - 'a' as usize;
             while !Rc::ptr_eq(&node, &self.root) && node.borrow().children[idx].is_none() {
-                node = node.clone().borrow().fail_link.as_ref().unwrap().upgrade().unwrap();
+                node = {
+                    let node_bwr = node.borrow();
+                    node_bwr
+                        .fail_link
+                        .as_ref()
+                        .unwrap()
+                        .upgrade()
+                        .unwrap()
+                };
             }
 
             if node.borrow().children[idx].is_some() {
-                node = node.clone().borrow().children[idx].as_ref().unwrap().clone();
+                node = {
+                    let node_bwr = node.borrow();
+                    node_bwr
+                        .children[idx]
+                        .as_ref()
+                        .unwrap()
+                        .clone()
+                };
             }
 
             if node.borrow().is_end {
@@ -75,23 +92,38 @@ impl Trie {
 
         while let Some(node) = dq.pop_front() {
             for idx in 0..26 {
-                if let Some(child) = node.clone().borrow().children[idx].clone() {
+                if let Some(child) = node.borrow().children[idx].clone() {
                     if Rc::ptr_eq(&node, &self.root) {
                         child.borrow_mut().fail_link = Some(Rc::downgrade(&self.root));
                     } else {
                         let mut parent = node.borrow().fail_link.as_ref().unwrap().upgrade().unwrap();
                         while !Rc::ptr_eq(&parent, &self.root) && parent.borrow().children[idx].is_none() {
-                            parent = parent.clone().borrow().fail_link.as_ref().unwrap().upgrade().unwrap();
+                            parent = {
+                                let parent_bwr = parent.borrow();
+                                parent_bwr
+                                    .fail_link
+                                    .as_ref()
+                                    .unwrap()
+                                    .upgrade()
+                                    .unwrap()
+                            };
                         }
                         
                         if parent.borrow().children[idx].is_some() {
-                            parent = parent.clone().borrow().children[idx].as_ref().unwrap().clone();
+                            parent = {
+                                let parent_bwr = parent.borrow();
+                                parent_bwr
+                                    .children[idx]
+                                    .as_ref()
+                                    .unwrap()
+                                    .clone()
+                            };
                         }
 
                         child.borrow_mut().fail_link = Some(Rc::downgrade(&parent));
                     }
 
-                    if child.clone().borrow().fail_link.as_ref().unwrap().upgrade().unwrap().borrow().is_end {
+                    if child.borrow().fail_link.as_ref().unwrap().upgrade().unwrap().borrow().is_end {
                         child.borrow_mut().is_end = true;
                     }
 
@@ -99,7 +131,6 @@ impl Trie {
                 }
             }
         }
-
     }
 }
 
@@ -135,7 +166,7 @@ fn solve(stdin: &str) {
     for _ in 0..m {
         match trie.search(next!()) {
             true => println!("YES"),
-            false => println!("NO")
+            false => println!("NO"),
         }
     }
 
@@ -167,7 +198,7 @@ macro_rules! println {
         STDOUT.with(|refcell| {
             use std::io::*;
             writeln!(refcell.borrow_mut(), $($t)*).unwrap();
-        });
+        })
     };
 }
 
@@ -177,6 +208,6 @@ macro_rules! print {
         STDOUT.with(|refcell| {
             use std::io::*;
             write!(refcell.borrow_mut(), $($t)*).unwrap();
-        });
+        })
     };
 }
