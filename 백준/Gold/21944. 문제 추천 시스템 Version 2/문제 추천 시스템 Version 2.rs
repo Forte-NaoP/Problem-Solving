@@ -78,58 +78,65 @@ fn solve(stdin: &str) {
             },
             "recommend2" => {
                 let op = next!(i32);
-                let mut ans = Problem {id: 0, lv: 0, tag: 0};
-
-                if op == 1 {
-                    for div in division.iter() {
-                        if !div.is_empty() {
-                            ans = ans.max(*div.last().unwrap());
+                let mut ans: Option<Problem> = None;
+                match op {
+                    1 => {
+                        for div in division.iter() {
+                            if let Some(&p) = div.last() {
+                                ans = Some(match ans {
+                                    Some(cur) => cur.max(p),
+                                    None => p,
+                                });
+                            }
                         }
-                    }
-                } else {
-                    ans.id = 100001;
-                    ans.lv = 100001;
-                    for div in division.iter() {
-                        if !div.is_empty() {
-                            ans = ans.min(*div.first().unwrap());
+                    },
+                    -1 => {
+                        for div in division.iter() {
+                            if let Some(&p) = div.first() {
+                                ans = Some(match ans {
+                                    Some(cur) => cur.min(p),
+                                    None => p,
+                                });
+                            }
                         }
-                    }
+                    },
+                    _ => unreachable!(),
                 }
-                println!("{}", ans.id);
+                println!("{}", ans.map(|p| p.id).unwrap_or(-1));
             },
             "recommend3" => {
                 let op = next!(i32);
                 let lv = next!(usize);
+                let mut ans: Option<Problem> = None;
 
-                if op == 1 {
-                    let key = Problem { id: i32::MIN, lv, tag: 0 };
-                    let mut ans = Problem { id: i32::MAX, lv: usize::MAX, tag: 0 };
+                match op {
+                    1 => {
+                        let key = Problem { id: i32::MIN, lv, tag: 0 };
 
-                    for div in division.iter() {
-                        if let Some(p) = div.range((Included(&key), Unbounded)).next() {
-                            ans = ans.min(*p);
+                        for div in division.iter() {
+                            if let Some(&p) = div.range((Included(&key), Unbounded)).next() {
+                                ans = Some(match ans {
+                                    Some(cur) => cur.min(p),
+                                    None => p,
+                                });
+                            }
+                        }
+                    },
+                    -1 => {
+                        let key = Problem { id: i32::MIN, lv, tag: 0 };
+
+                        for div in division.iter() {
+                            if let Some(&p) = div.range((Unbounded, Excluded(&key))).next_back() {
+                                ans = Some(match ans {
+                                    Some(cur) => cur.max(p),
+                                    None => p,
+                                });
+                            }
                         }
                     }
-                    if ans.id != i32::MAX {
-                        println!("{}", ans.id);
-                    } else {
-                        println!("-1");
-                    }
-                } else {
-                    let key = Problem { id: i32::MIN, lv, tag: 0 };
-                    let mut ans = Problem { id: i32::MIN, lv: 0, tag: 0 };
-
-                    for div in division.iter() {
-                        if let Some(p) = div.range((Unbounded, Excluded(&key))).next_back() {
-                            ans = ans.max(*p);
-                        }
-                    }
-                    if ans.id != i32::MIN {
-                        println!("{}", ans.id);
-                    } else {
-                        println!("-1");
-                    }
+                    _ => unreachable!(),
                 }
+                println!("{}", ans.map(|p| p.id).unwrap_or(-1));
             },
             "add" => {
                 let (id, lv, tag) = next!(usize, usize, usize);
