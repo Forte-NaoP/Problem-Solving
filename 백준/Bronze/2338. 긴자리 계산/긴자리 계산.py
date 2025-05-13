@@ -1,0 +1,1 @@
+a=input();b=input();print(*map(eval,[f'{a}{o}{b}'for o in'+-*']),sep='\n')
