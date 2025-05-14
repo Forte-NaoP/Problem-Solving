@@ -1,0 +1,1 @@
+print(1 if(not((y:=int(input()))%4)and y%100)or not y%400 else 0)
