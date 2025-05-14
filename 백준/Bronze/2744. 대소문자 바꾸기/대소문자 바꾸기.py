@@ -1,0 +1,1 @@
+print(*map(lambda x:x.lower()if x.isupper() else x.upper(),input()),sep='')
