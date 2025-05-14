@@ -1,0 +1,1 @@
+import sys;print(*(int(b)//(int(a)+1) for a,b in map(str.split,sys.stdin)),sep='\n')
